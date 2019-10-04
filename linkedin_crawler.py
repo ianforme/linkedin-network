@@ -26,7 +26,7 @@ class LinkedInConnections:
         time.sleep(5)
         self.driver.find_element_by_xpath("//a[@data-control-name='topcard_view_all_connections']").click()
 
-    def _scroll_down(self, speed=4):
+    def _scroll_down(self, speed=2):
         """
         Scroll down the the end of the page with a speed, default 4
 
@@ -45,7 +45,10 @@ class LinkedInConnections:
 
         :return: bool
         """
-        return self.driver.find_element_by_xpath("//button[@aria-label='Next']").is_enabled()
+        try:
+            return self.driver.find_element_by_xpath("//button[@aria-label='Next']").is_enabled()
+        except:
+            return False
 
     def _go_next_page(self):
         """
@@ -91,6 +94,7 @@ class LinkedInConnections:
             else:
                 time.sleep(2)
                 self._go_next_page()
+                time.sleep(2)
 
         return res
 
@@ -140,6 +144,5 @@ class LinkedInConnections:
         """
         self._login()
         self._extract_first_degree()
-        self._extract_second_degree()
-
+        # self._extract_second_degree()
         # self.driver.quit()
