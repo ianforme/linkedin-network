@@ -58,14 +58,19 @@ class LinkedInConnections:
         """
         self.driver.find_element_by_xpath("//button[@aria-label='Next']").click()
 
-    def _extract_connection_info(self, get_mutual=True):
+    def _extract_connection_info(self, url = None, get_mutual=True):
         """
         Extract name, profile page url
         and mutual friends url for every connection in the connection page
 
+        :param url: connection url page to be extracted
         :param get_mutual: flag to determine whether to extract mutual connection urls
         :return: list of lists
         """
+
+        if url:
+            self.driver.get(url)
+
         res = list()
 
         while True:
@@ -98,16 +103,6 @@ class LinkedInConnections:
 
         return res
 
-    def _extract_mutual_connection(self, url):
-        """
-        Extract mutual connections from a url in connection_url column
-
-        :param url: 1 connection url
-        :return: list of list
-        """
-        self.driver.get(url)
-        return self._extract_connection_info(get_mutual=False)
-
     def _extract_first_degree(self):
         """
         Extract first degree connections and their connection urls
@@ -124,7 +119,8 @@ class LinkedInConnections:
         :return:
         """
         second_degree_df = self.first_degree_df.copy()
-        second_degree_df['connection_url'] = second_degree_df['connection_url'].apply(lambda x: x if isinstance(x, list) else self._extract_mutual_connection(x))
+        second_degree_df['connection_url'] = second_degree_df['connection_url'].\
+            apply(lambda x: x if isinstance(x, list) else self._extract_connection_info(x, False))
         self.second_degree_df = second_degree_df
 
     def _generate_final_df(self):
@@ -142,7 +138,8 @@ class LinkedInConnections:
 
         :return:
         """
+
         self._login()
-        self._extract_first_degree()
+        # self._extract_first_degree()
         # self._extract_second_degree()
         # self.driver.quit()
