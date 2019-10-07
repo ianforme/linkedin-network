@@ -11,6 +11,7 @@ class LinkedInConnections:
         self.driver = webdriver.Chrome(self.driver_path)
         self.first_degree_df = None
         self.second_degree_df = None
+        self.final_df = None
 
     def _login(self):
         """
@@ -125,12 +126,27 @@ class LinkedInConnections:
 
     def _generate_final_df(self):
         """
-        process the second degree df and get ready to output the results
+        Process the second degree df and get ready to output the results
 
         :return:
         """
+        final_df = self.second_degree_df.copy()
 
-        #TODO
+        final_df['connection_url'] = final_df['connection_url'].apply(lambda x: [';'.join(i) for i in x])
+        final_df = final_df.explode('connection_url')
+        final_df['connection_url'] = final_df['connection_url'].str.split(';')
+        final_df['connection_name'] = final_df['connection_url'].apply(lambda x: x[0] if isinstance(x, list) else x)
+        final_df['connection_url'] = final_df['connection_url'].apply(lambda x: x[1] if isinstance(x, list) else x)
+
+        self.final_df = final_df[['name', 'url', 'connection_name', 'connection_url']]
+
+    def _save_final_df(self):
+        """
+        Save final dataframe in csv format
+
+        :return:
+        """
+        self.final_df.to_csv("linkedin_network.csv", index=False)
 
     def crawl(self):
         """
@@ -138,8 +154,9 @@ class LinkedInConnections:
 
         :return:
         """
-
         self._login()
         # self._extract_first_degree()
         # self._extract_second_degree()
+        # self._generate_final_df()
+        # self._save_final_df()
         # self.driver.quit()
