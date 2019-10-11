@@ -132,6 +132,7 @@ class LinkedInConnections:
         """
         final_df = self.second_degree_df.copy()
 
+        final_df['connection_url'] = final_df['connection_url'].apply(lambda x: eval(x))
         final_df['connection_url'] = final_df['connection_url'].apply(lambda x: [';'.join(i) for i in x])
         final_df = final_df.explode('connection_url')
         final_df['connection_url'] = final_df['connection_url'].str.split(';')
